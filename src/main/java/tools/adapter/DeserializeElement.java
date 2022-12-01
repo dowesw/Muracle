@@ -2,8 +2,6 @@ package tools.adapter;
 
 import com.google.gson.*;
 import component.Element;
-import component.element.Accessoire;
-import component.element.accessoire.Porte;
 import tools.Utils;
 
 import java.lang.reflect.Type;
@@ -27,9 +25,6 @@ public class DeserializeElement implements JsonDeserializer<Element> {
         }
         Element result = null;
         try {
-            if (className.equals("component.element.Accessoire")) {
-                return null;
-            }
             Class<?> eclass = Class.forName(className);
             result = context.deserialize(node, eclass);
         } catch (ClassNotFoundException ex) {

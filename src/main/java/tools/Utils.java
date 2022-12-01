@@ -6,6 +6,7 @@
 package tools;
 
 import component.element.Mur;
+import component.element.Separator;
 import domain.Controller;
 import tools.Point;
 import component.Element;
@@ -88,7 +89,14 @@ public class Utils {
         }
     }
 
-    public static void controlPoint(Element mur, final Point point, int width, int height){
+    public static void controlPoint(Separator separateur, final Point point, int width, int height) {
+        Mur mur = separateur.getMurGauche();
+        mur.setB(separateur.getMurDroite().getB());
+        mur.setC(separateur.getMurDroite().getC());
+        controlPoint(mur, point, width, height);
+    }
+
+    public static void controlPoint(Mur mur, final Point point, int width, int height) {
         if (point.x < mur.getA().x) {
             point.x = mur.getA().x;
         }

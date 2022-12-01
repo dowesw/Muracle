@@ -11,7 +11,7 @@ import component.element.Cote;
 import component.element.Mur;
 import tools.Point;
 
-import java.lang.reflect.Field;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;

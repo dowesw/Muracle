@@ -98,23 +98,23 @@ public class Controller {
         try {
             if (mur != null) {
                 int index = cote.getElements().indexOf(mur);
-                Mur murDroite = (Mur) mur;
-                int y = murDroite.getA().y;
+                Mur murGauche = (Mur) mur;
+                int y = murGauche.getA().y;
                 int x = (point.x + cote.getSalle().getSeparator());
-                int width = (murDroite.getB().x - x);
-                murDroite.setWidth(point.x - murDroite.getA().x);
+                int width = (murGauche.getB().x - x);
+                murGauche.setWidth(point.x - murGauche.getA().x);
 
-                Mur murGauche = new Mur(cote.getElements().size() + 1, cote, width);
-                murGauche.setA(new Point(x, y));
+                Mur murDroite = new Mur(cote.getElements().size() + 1, cote, width);
+                murDroite.setA(new Point(x, y));
 
-                Separator item = new Separator(cote.getElements().size() + 1, cote, murDroite, murGauche);
+                Separator item = new Separator(cote.getElements().size() + 1, cote, murGauche, murDroite);
                 item.setA(new Point(point.x, y));
 
                 cote.getElements().add(index + 1, item.build());
-                cote.getElements().add(index + 2, murGauche.build());
+                cote.getElements().add(index + 2, murDroite.build());
 
                 if (index > -1) {
-                    cote.getElements().set(index, (Element) murDroite.build());
+                    cote.getElements().set(index, (Element) murGauche.build());
                 }
                 return true;
             }

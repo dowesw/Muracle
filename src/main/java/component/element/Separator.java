@@ -8,6 +8,7 @@ package component.element;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import component.Element;
 import tools.Point;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
@@ -19,7 +20,6 @@ import javax.xml.bind.annotation.*;
 import component.drawing.IDrawing;
 
 /**
- *
  * @author dowes
  */
 @XmlRootElement(name = "separator")
@@ -53,12 +53,12 @@ public class Separator extends Element {
         this.cote = cote;
     }
 
-    public Separator(long id, Cote cote, Mur murDroite, Mur murGauche) {
-        this(id, "Séparateur N°" + id, cote, murDroite, murGauche);
+    public Separator(long id, Cote cote, Mur murGauche, Mur murDroite) {
+        this(id, "Séparateur N°" + id, cote, murGauche, murDroite);
 
     }
 
-    public Separator(long id, String name, Cote cote, Mur murDroite, Mur murGauche) {
+    public Separator(long id, String name, Cote cote, Mur murGauche, Mur murDroite) {
         this(id, name, cote);
         this.murDroite = murDroite;
         this.murGauche = murGauche;
@@ -96,8 +96,8 @@ public class Separator extends Element {
         try {
             final DefaultTableModel model = new javax.swing.table.DefaultTableModel(
                     new Object[][]{
-                        {"Name", getName()},
-                        {"Epaisseur", getCote().getSalle().getSeparator()}},
+                            {"Name", getName()},
+                            {"Epaisseur", getCote().getSalle().getSeparator()}},
                     new String[]{"", ""}
             ) {
                 boolean[] canEdit = new boolean[]{false, false};
@@ -152,5 +152,4 @@ public class Separator extends Element {
         }
         return this;
     }
-
 }

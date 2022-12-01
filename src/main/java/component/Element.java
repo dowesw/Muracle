@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.*;
 
 import component.drawing.IDrawing;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Objects;
 
 /**
@@ -21,7 +23,7 @@ import java.util.Objects;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class Element {
+public abstract class Element implements MouseListener {
 
     private long id;
 
@@ -130,6 +132,32 @@ public abstract class Element {
 
     @JsonIgnore
     public abstract JTable properties(final IDrawing.Listerner listener);
+
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        System.err.println(getClassName() + " Clicked");
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        System.err.println(getClassName() + " Pressed");
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        System.err.println(getClassName() + " Released");
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        System.err.println(getClassName() + " Entered");
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        System.err.println(getClassName() + " Exited");
+    }
 
     @Override
     public boolean equals(Object o) {

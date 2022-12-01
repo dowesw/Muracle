@@ -246,7 +246,15 @@ public class DrawingPanel extends JPanel {
                         }
                         if (elementSelected instanceof Separator) {
                             Separator item = ((Separator) elementSelected);
-
+                            Utils.controlPoint(item, pointReleased, getControler().getSalle().getSeparator(), getControler().getSalle().getHeight());
+                            Mur murGauche = item.getMurGauche();
+                            int width = pointReleased.x - murGauche.getA().x;
+                            murGauche.setWidth(width);
+                            Mur murDroite = item.getMurDroite();
+                            width = murDroite.getWidth() + (murDroite.getA().x - pointReleased.x) - getControler().getSalle().getSeparator();
+                            murDroite.setWidth(width);
+                            Point A = new Point(pointReleased.x + getControler().getSalle().getSeparator(), murDroite.getA().y);
+                            murDroite.setA(A);
                         }
                         elementSelected.setA(pointReleased);
                         repaint();
