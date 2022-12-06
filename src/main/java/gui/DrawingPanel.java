@@ -11,12 +11,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
+import component.drawing.DrawingPanneau;
+import component.element.accessoire.RetourAir;
 import tools.Point;
 import component.element.Accessoire;
 import component.element.Cote;
@@ -67,6 +65,7 @@ public class DrawingPanel extends JPanel {
     }
 
     private void initComponent() {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
             @Override
@@ -90,17 +89,23 @@ public class DrawingPanel extends JPanel {
                 repaint();
             }
         });
+        setPreferredSize(drawing.getDimension());
         this.repaint();
     }
 
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        if (getControler().isDisplayGrille()) {
-            getControler().drawGrille(g, getWidth(), getHeight());
-        }
-        if (drawing != null) {
-            drawing.draw(g);
+        try {
+            removeAll();
+            if (getControler().isDisplayGrille()) {
+                getControler().drawGrille(g, getWidth(), getHeight());
+            }
+            if (drawing != null) {
+                drawing.draw(g);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(DrawingPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -155,6 +160,36 @@ public class DrawingPanel extends JPanel {
                 manager(tools);
             } else {
                 Messages.error(getFrame(), "Error", "Vous devez selectionner un cote");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(DrawingPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void drawMur(final Mur mur) {
+        try {
+            getControler().setMur(mur);
+            if (mur != null) {
+                final JPanel tools = getFrame().getTools();
+                setDrawing(new DrawingPanneau(mur, getWidth(), getHeight(), new DrawingElevation.ActionDrawing() {
+                    @Override
+                    public void back() {
+                        drawCote(getControler().getCote(), true);
+                    }
+                }));
+                manager(tools);
+            } else {
+                Messages.error(getFrame(), "Error", "Vous devez selectionner un mur");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(DrawingPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void addSeparator(Cote cote, final Point point) {
+        try {
+            if (getControler().addSeparator(cote, point)) {
+                repaint();
             }
         } catch (Exception ex) {
             Logger.getLogger(DrawingPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -238,6 +273,9 @@ public class DrawingPanel extends JPanel {
             Point pointReleased = getControler().getPoint(point, 1);
             if (pointPressed != null) {
                 if (elementSelected != null ? (elementSelected instanceof Accessoire || elementSelected instanceof Separator) : false) {
+                    if (elementSelected instanceof RetourAir) {
+                        return;
+                    }
                     if (pointPressed.x != pointReleased.x || pointPressed.y != pointReleased.y) {
                         if (elementSelected instanceof Accessoire) {
                             Accessoire item = ((Accessoire) elementSelected);
@@ -246,15 +284,7 @@ public class DrawingPanel extends JPanel {
                         }
                         if (elementSelected instanceof Separator) {
                             Separator item = ((Separator) elementSelected);
-                            Utils.controlPoint(item, pointReleased, getControler().getSalle().getSeparator(), getControler().getSalle().getHeight());
-                            Mur murGauche = item.getMurGauche();
-                            int width = pointReleased.x - murGauche.getA().x;
-                            murGauche.setWidth(width);
-                            Mur murDroite = item.getMurDroite();
-                            width = murDroite.getWidth() + (murDroite.getA().x - pointReleased.x) - getControler().getSalle().getSeparator();
-                            murDroite.setWidth(width);
-                            Point A = new Point(pointReleased.x + getControler().getSalle().getSeparator(), murDroite.getA().y);
-                            murDroite.setA(A);
+                            Utils.updateMursWhenUpdateSeparator(item, pointReleased, getControler().getSalle());
                         }
                         elementSelected.setA(pointReleased);
                         repaint();
@@ -295,6 +325,17 @@ public class DrawingPanel extends JPanel {
         JPopupMenu context = null;
         try {
             context = new JPopupMenu("Options");
+            JMenuItem separator = new JMenuItem("Ajouter un séparateur");
+            separator.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (elementSelected instanceof Cote) {
+                        addSeparator((Cote) elementSelected, pointPressed);
+                    }
+                }
+            });
+            context.add(separator);
+            context.add(new JSeparator());
             JMenuItem interne = new JMenuItem("Affichage vue interne");
             interne.addActionListener(new ActionListener() {
                 @Override
@@ -397,6 +438,17 @@ public class DrawingPanel extends JPanel {
                     }
                 });
                 context.add(retourAir);
+                context.add(new JSeparator());
+                JMenuItem displayPanneau = new JMenuItem("Afficher les panneaux");
+                displayPanneau.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (elementSelected instanceof Mur) {
+                            drawMur((Mur) elementSelected);
+                        }
+                    }
+                });
+                context.add(displayPanneau);
             }
         } catch (Exception ex) {
             Logger.getLogger(DrawingPanel.class.getName()).log(Level.SEVERE, null, ex);

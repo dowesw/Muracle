@@ -64,6 +64,16 @@ public class Salle {
     @XmlElement(name = "separator-width")
     private int separator = 0;
     /**
+     * L'angle du coin de pli pour les panneaux
+     */
+    @XmlElement(name = "angle-coin-pli")
+    private int angleCoinPli = 0;
+    /**
+     * La valeur de décalage de l'epaisseur en fonction du mur pour les panneaux
+     */
+    @XmlElement(name = "decale-epaisseur-mur")
+    private int decaleEpaisseurMur = 0;
+    /**
      * La liste des cotés d'une salle
      */
     @XmlElementWrapper(name = "cotes")
@@ -127,6 +137,22 @@ public class Salle {
         this.separator = separator;
     }
 
+    public int getAngleCoinPli() {
+        return angleCoinPli;
+    }
+
+    public void setAngleCoinPli(int angleCoinPli) {
+        this.angleCoinPli = angleCoinPli;
+    }
+
+    public int getDecaleEpaisseurMur() {
+        return decaleEpaisseurMur;
+    }
+
+    public void setDecaleEpaisseurMur(int decaleEpaisseurMur) {
+        this.decaleEpaisseurMur = decaleEpaisseurMur;
+    }
+
     @JsonIgnore
     public JTable properties(final IDrawing.Listerner listener) {
         JTable tableSalle = new javax.swing.JTable();
@@ -137,7 +163,10 @@ public class Salle {
                             {"Dimension", "[" + getLength() + "," + getWidth() + "]"},
                             {"Hauteur des murs", getHeight()},
                             {"Epaisseur des murs", getWeight()},
-                            {"Séparateur", getSeparator()},},
+                            {"Séparateur", getSeparator()},
+                            {"Angle de pli du coin", getAngleCoinPli()},
+                            {"Décale de l'épaisseur", getDecaleEpaisseurMur()},
+                    },
                     new String[]{"", ""}
             ) {
                 boolean[] canEdit = new boolean[]{false, true};
@@ -172,6 +201,7 @@ public class Salle {
                                     int width = Integer.valueOf(dimensions[1].trim());
                                     setLength(length);
                                     setWidth(width);
+                                    rebuild();
                                     break;
                                 }
                                 case 2: {//Height
@@ -200,6 +230,23 @@ public class Salle {
             Logger.getLogger(Salle.class.getName()).log(Level.SEVERE, null, ex);
         }
         return tableSalle;
+    }
+
+    @JsonIgnore
+    private void rebuild() {
+        try {
+            for (Cote cote : getCotes()) {
+                List<Mur> murs = cote.getMurs();
+                Mur mur = murs.get(murs.size() - 1);
+                int lenght = 0;
+                for (Element element : cote.getElements()) {
+                    lenght += (element instanceof Mur) ? ((Mur) element).getWidth() : getSeparator();
+                }
+                mur.setWidth(mur.getWidth() + ((cote.isVertical() ? getWidth() : getLength()) - lenght));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Salle.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @JsonIgnore

@@ -5,8 +5,10 @@
  */
 package component.drawing;
 
-import java.awt.Graphics;
+import java.awt.*;
+
 import tools.Point;
+
 import javax.swing.*;
 
 import component.Element;
@@ -44,6 +46,8 @@ public interface IDrawing {
      * @param panel
      */
     void manager(JPanel panel);
+
+    Dimension getDimension();
 
     /**
      * Fonction pour définir la méthode d'actualisation après changement

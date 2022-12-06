@@ -10,6 +10,7 @@ import javax.swing.*;
 import component.Salle;
 import domain.Controller;
 import gui.DrawingPanel;
+import tools.Constantes;
 import tools.Messages;
 
 /**
@@ -25,6 +26,7 @@ public class FrameMain extends javax.swing.JFrame {
     public FrameMain() {
         initComponents();
         controller = new Controller();
+        Constantes.MAIN = this;
     }
 
     public Controller getControler() {
@@ -33,6 +35,10 @@ public class FrameMain extends javax.swing.JFrame {
 
     public JPanel getTools() {
         return panel_tools;
+    }
+
+    public DrawingPanel getDisplay() {
+        return (DrawingPanel) panel_display;
     }
 
     /**
@@ -47,6 +53,7 @@ public class FrameMain extends javax.swing.JFrame {
         panel_main = new javax.swing.JSplitPane();
         panel_tools = new javax.swing.JPanel();
         panel_display = new DrawingPanel(this);
+        scroll_display = new javax.swing.JScrollPane(panel_display);
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         item_new = new javax.swing.JMenuItem();
@@ -97,8 +104,9 @@ public class FrameMain extends javax.swing.JFrame {
                 panel_displayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGap(0, 449, Short.MAX_VALUE)
         );
-
-        panel_main.setRightComponent(panel_display);
+        scroll_display.setLayout(new ScrollPaneLayout());
+        scroll_display.setViewportView(panel_display);
+        panel_main.setRightComponent(scroll_display);
 
         jMenu1.setText("File");
 
@@ -283,6 +291,7 @@ public class FrameMain extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPanel panel_display;
+    private javax.swing.JScrollPane scroll_display;
     private javax.swing.JSplitPane panel_main;
     private javax.swing.JPanel panel_tools;
     // End of variables declaration//GEN-END:variables

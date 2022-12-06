@@ -45,6 +45,7 @@ public class Controller {
 
     private Salle salle;
     private Cote cote;
+    private Mur mur;
     private boolean displayGrille = false;
     private String fileSave = null;
 
@@ -65,6 +66,14 @@ public class Controller {
 
     public void setCote(Cote cote) {
         this.cote = cote;
+    }
+
+    public Mur getMur() {
+        return mur;
+    }
+
+    public void setMur(Mur mur) {
+        this.mur = mur;
     }
 
     public boolean isDisplayGrille() {
@@ -88,22 +97,85 @@ public class Controller {
             salle.setSeparator(Config.separatorWidth);
             salle.setWeight(Config.murWeight);
             salle.setHeight(Config.murHeight);
+            salle.setAngleCoinPli(Config.angleCoinPli);
+            salle.setDecaleEpaisseurMur(Config.decaleEpaisseurMur);
         } catch (Exception ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
         salle.build();
     }
 
+    /**
+     * Ajouter un séparateur depuis l'afficher plan
+     *
+     * @param cote
+     * @param point
+     * @return
+     */
+    public boolean addSeparator(Cote cote, final Point point) {
+        try {
+            Mur murGauche = null;
+            for (Element item : cote.getElements()) {
+                if (item instanceof Mur) {
+                    if (Utils.checkPointInElement(item, point)) {
+                        murGauche = (Mur) item;
+                        break;
+                    }
+                }
+            }
+            if (murGauche == null) {
+                return false;
+            }
+            int index = cote.getElements().indexOf(murGauche);
+
+            int y = cote.isVertical() ? (point.y + cote.getSalle().getSeparator()) : murGauche.getA().y;
+            int x = cote.isVertical() ? murGauche.getA().x : (point.x + cote.getSalle().getSeparator());
+            Point pointB = murGauche.getB();
+            if (cote.getPosition().equals(Cote.Position.SOUTH) || cote.getPosition().equals(Cote.Position.EAST)) {
+                pointB = murGauche.getC();
+            } else if (cote.getPosition().equals(Cote.Position.WEST)) {
+                pointB = murGauche.getD();
+            }
+            int width = cote.isVertical() ? (pointB.y - y) : (pointB.x - x);
+
+            murGauche.setWidth(cote.isVertical() ? (point.y - murGauche.getA().y) : (point.x - murGauche.getA().x));
+
+            return addSeparatorWithMurDroite(murGauche, cote, point, index, x, y, width);
+        } catch (Exception ex) {
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
+    /**
+     * Ajouter un séparateur depuis l'afficher élévation
+     *
+     * @param mur
+     * @param cote
+     * @param point
+     * @return
+     */
     public boolean addSeparator(Mur mur, Cote cote, final Point point) {
         try {
             if (mur != null) {
                 int index = cote.getElements().indexOf(mur);
-                Mur murGauche = (Mur) mur;
+                Mur murGauche = mur;
                 int y = murGauche.getA().y;
                 int x = (point.x + cote.getSalle().getSeparator());
                 int width = (murGauche.getB().x - x);
                 murGauche.setWidth(point.x - murGauche.getA().x);
 
+                return addSeparatorWithMurDroite(murGauche, cote, point, index, x, y, width);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
+    private boolean addSeparatorWithMurDroite(Mur murGauche, Cote cote, Point point, int index, int x, int y, int width) {
+        try {
+            if (murGauche != null) {
                 Mur murDroite = new Mur(cote.getElements().size() + 1, cote, width);
                 murDroite.setA(new Point(x, y));
 
@@ -170,10 +242,10 @@ public class Controller {
             item.setA(point);
             mur.getAccessoires().add(item.build());
 
-            TrouAir trou = new TrouAir(mur.getAccessoires().size() + 1, mur, item, Config.retourWidth, Config.retourHeight);
+            TrouAir trou = new TrouAir(mur.getAccessoires().size() + 1, mur, item, Config.trouWidth, Config.trouHeight);
             Utils.controlPoint(mur, point, trou.getWidth(), trou.getHeight());
             trou.setA(point);
-            mur.getAccessoires().add(trou.build());
+//            mur.getAccessoires().add(trou.build());
             return true;
         } catch (Exception ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);

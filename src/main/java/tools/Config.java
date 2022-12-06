@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author LYMYTZ
  */
 public class Config {
@@ -48,11 +47,21 @@ public class Config {
 
     public static int retourHeight;
 
+    public static int retourWeight;
+
+    public static int retourDistanceSol;
+
     public static int trouWidth;
 
     public static int trouHeight;
 
     public static int grilleLength;
+
+    public static int pliHeight;
+
+    public static int angleCoinPli;
+
+    public static int decaleEpaisseurMur;
 
     public static void load() {
         try {
@@ -108,6 +117,12 @@ public class Config {
                 String _retourHeigth_ = prop.getProperty("retour.height");
                 retourHeight = Utils.asString(_retourHeigth_) ? Integer.valueOf(_retourHeigth_) : 0;
 
+                String _retourWeight_ = prop.getProperty("retour.weight");
+                retourWeight = Utils.asString(_retourWeight_) ? Integer.valueOf(_retourWeight_) : 0;
+
+                String _retourDistanceSol_ = prop.getProperty("retour.distance.sol");
+                retourDistanceSol = Utils.asString(_retourDistanceSol_) ? Integer.valueOf(_retourDistanceSol_) : 0;
+
                 String _trouWidth_ = prop.getProperty("trou.width");
                 trouWidth = Utils.asString(_trouWidth_) ? Integer.valueOf(_trouWidth_) : 0;
 
@@ -116,6 +131,15 @@ public class Config {
 
                 String _grilleLength_ = prop.getProperty("grille.length");
                 grilleLength = Utils.asString(_grilleLength_) ? Integer.valueOf(_grilleLength_) : 0;
+
+                String _pliHeight_ = prop.getProperty("pli.height");
+                pliHeight = Utils.asString(_pliHeight_) ? Integer.valueOf(_pliHeight_) : 0;
+
+                String _angleCoinPli_ = prop.getProperty("angle.coin.pli");
+                angleCoinPli = Utils.asString(_angleCoinPli_) ? Integer.valueOf(_angleCoinPli_) : 0;
+
+                String _decaleEpaisseurMur_ = prop.getProperty("decale.epaisseur.mur");
+                decaleEpaisseurMur = Utils.asString(_decaleEpaisseurMur_) ? Integer.valueOf(_decaleEpaisseurMur_) : 0;
             } catch (Exception ex) {
                 Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -5,11 +5,12 @@
  */
 package component.drawing;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
+
+import component.element.accessoire.RetourAir;
+import tools.Config;
 import tools.Point;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -70,6 +71,56 @@ public class DrawingElevation extends ADrawing implements IDrawing {
         return interne;
     }
 
+    public Dimension getDimension() {
+        try {
+            int width = element.getSalle().getLength() + (element.getSalle().getOrigin().getX() * 2);
+            int height = element.getSalle().getHeight() + (element.getSalle().getOrigin().getY() * 2);
+            return new Dimension(width, height);
+        } catch (Exception ex) {
+            Logger.getLogger(DrawingPlan.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return Toolkit.getDefaultToolkit().getScreenSize();
+    }
+
+    /**
+     * Fonction qui trouve l'élément ou le trouve le point du curseur
+     *
+     * @param point
+     */
+    @Override
+    public Element findElement(Point point) {
+        Element result = null;
+        if (point != null) {
+            for (Element item : element.getElements()) {
+                item.setSelected(Utils.checkPointInElement(item, point));
+                if (item.isSelected()) {
+                    result = item;
+                }
+                if (item instanceof Mur) {
+                    Mur mur = ((Mur) item);
+                    for (Accessoire acc : (interne ? mur.getAccessoiresInterne() : mur.getAccessoiresExterne())) {
+                        acc.setSelected(Utils.checkPointInElement(acc, point));
+                        if (acc.isSelected()) {
+                            if (result != null) {
+                                int index = element.getElements().indexOf(result);
+                                if (index > -1) {
+                                    element.getElements().get(index).setSelected(false);
+                                }
+                            }
+                            result = acc;
+                        }
+                    }
+                    int index = element.getElements().indexOf(mur);
+                    if (index > -1) {
+                        element.getElements().set(index, mur);
+                    }
+                }
+            }
+        }
+        this.itemSelected = result;
+        return result;
+    }
+
     private void drawAccessoire(Graphics g, Accessoire item) {
         try {
             Graphics2D g2d = (Graphics2D) g;
@@ -78,7 +129,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
              * Determination des points x de l'element
              */
             int[] x = new int[4];
-            x[0] = item.getA().x;
+            x[0] = item instanceof RetourAir ? (item.getMur().getA().x + (item.getMur().getWidth() / 2) - (item.getWidth() / 2)) : item.getA().x;
             x[1] = x[0] + item.getWidth();
             x[2] = x[1];
             x[3] = x[0];
@@ -86,7 +137,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
              * Determination des points y de l'element
              */
             int[] y = new int[4];
-            y[0] = item.getA().y;
+            y[0] = item instanceof RetourAir ? (item.getMur().getD().y - item.getHeight() - Config.retourDistanceSol) : item.getA().y;
             y[1] = y[0];
             y[2] = y[0] + item.getHeight();
             y[3] = y[2];
@@ -96,6 +147,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
             /**
              * Définition des différents points de l'élément
              */
+            item.setA(new Point(x[0], y[0]));
             item.setB(new Point(x[1], y[1]));
             item.setC(new Point(x[2], y[2]));
             item.setD(new Point(x[3], y[3]));
@@ -129,10 +181,6 @@ public class DrawingElevation extends ADrawing implements IDrawing {
                  * Dessin du mur
                  */
                 g.drawPolygon(x, y, 4);
-
-                for (Accessoire acc : (interne ? ((Mur) item).getAccessoiresInterne() : ((Mur) item).getAccessoiresExterne())) {
-                    drawAccessoire(g, acc);
-                }
             } else {
                 /**
                  * Dessin du séparateur
@@ -145,6 +193,11 @@ public class DrawingElevation extends ADrawing implements IDrawing {
             item.setB(new Point(x[1], y[1]));
             item.setC(new Point(x[2], y[2]));
             item.setD(new Point(x[3], y[3]));
+            if (item instanceof Mur) {
+                for (Accessoire acc : (interne ? ((Mur) item).getAccessoiresInterne() : ((Mur) item).getAccessoiresExterne())) {
+                    drawAccessoire(g, acc);
+                }
+            }
             /**
              * Determination du point d'origine du prochain élément
              */
@@ -209,43 +262,6 @@ public class DrawingElevation extends ADrawing implements IDrawing {
     }
 
     /**
-     * Fonction qui trouve l'élément ou le trouve le point du curseur
-     *
-     * @param point
-     */
-    @Override
-    public Element findElement(Point point) {
-        Element result = null;
-        if (point != null) {
-            for (Element item : element.getElements()) {
-                item.setSelected(Utils.checkPointInElement(item, point));
-                if (item.isSelected()) {
-                    result = item;
-                }
-                if (item instanceof Mur) {
-                    Mur mur = ((Mur) item);
-                    for (Accessoire acc : (interne ? mur.getAccessoiresInterne() : mur.getAccessoiresExterne())) {
-                        acc.setSelected(Utils.checkPointInElement(acc, point));
-                        if (acc.isSelected()) {
-                            if (result != null) {
-                                int index = element.getElements().indexOf(result);
-                                element.getElements().get(index).setSelected(false);
-                            }
-                            result = acc;
-                        }
-                    }
-                    int index = element.getElements().indexOf(mur);
-                    if (index > -1) {
-                        element.getElements().set(index, mur);
-                    }
-                }
-            }
-        }
-        this.itemSelected = result;
-        return result;
-    }
-
-    /**
      * Fonction qui défini le panel de controle de l'afficheur
      *
      * @param panel
@@ -268,7 +284,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
             item.setVisible(false);
             if (itemSelected != null) {
                 if (itemSelected instanceof Separator) {
-                    item = new JBloc(panel.getPreferredSize().width, 77, 40, "Séparateur");
+                    item = new JBloc(panel.getPreferredSize().width, 92, 55, "Séparateur");
                 } else if (itemSelected instanceof Accessoire) {
                     item = new JBloc(panel.getPreferredSize().width, 155, 119, itemSelected.getClass().getSimpleName());
                 }

@@ -18,6 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.annotation.*;
 
 import component.drawing.IDrawing;
+import tools.Utils;
 
 /**
  * @author dowes
@@ -93,18 +94,20 @@ public class Separator extends Element {
     @Override
     public JTable properties(final IDrawing.Listerner listener) {
         JTable table = new javax.swing.JTable();
+        final Separator current = this;
         try {
             final DefaultTableModel model = new javax.swing.table.DefaultTableModel(
                     new Object[][]{
                             {"Name", getName()},
+                            {"Location", "[" + getA().x + "," + getB().y + "]"},
                             {"Epaisseur", getCote().getSalle().getSeparator()}},
                     new String[]{"", ""}
             ) {
-                boolean[] canEdit = new boolean[]{false, false};
+                boolean[][] canEdit = new boolean[][]{new boolean[]{false, false}, new boolean[]{false, true}, new boolean[]{false, false}};
 
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return canEdit[columnIndex];
+                    return canEdit[rowIndex][columnIndex];
                 }
             };
             table.setModel(model);
@@ -120,6 +123,18 @@ public class Separator extends Element {
                             }
                             switch (event.getFirstRow()) {
                                 case 0: {//Name
+                                    System.out.println("Name : " + value);
+                                    break;
+                                }
+                                case 1: {//Location
+                                    String[] locations = value.toString().replace("[", "").replace("]", "").trim().split(",");
+                                    int x = Integer.valueOf(locations[0].trim());
+                                    int y = Integer.valueOf(locations[1].trim());
+                                    Point point = new Point(x, y);
+                                    Utils.updateMursWhenUpdateSeparator(current, point, getCote().getSalle());
+                                    break;
+                                }
+                                case 2: {//Epaisseur
                                     System.out.println("Name : " + value);
                                     break;
                                 }
