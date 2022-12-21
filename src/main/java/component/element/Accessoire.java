@@ -86,6 +86,10 @@ public class Accessoire extends Element {
         this.height = height;
     }
 
+    public String getClassName() {
+        return getClass().getName();
+    }
+
     @JsonIgnore
     public Accessoire build() {
         try {

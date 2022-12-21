@@ -7,6 +7,7 @@ package component.drawing;
 
 import java.awt.*;
 
+import component.Salle;
 import component.element.accessoire.RetourAir;
 import tools.Config;
 import tools.Point;
@@ -48,6 +49,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
      * @param interne
      */
     public DrawingElevation(Cote element, boolean interne) {
+        super(element);
         this.element = element;
         this.interne = interne;
     }
@@ -65,6 +67,11 @@ public class DrawingElevation extends ADrawing implements IDrawing {
     @Override
     public Object getObjet() {
         return element;
+    }
+
+    @Override
+    public void setObjet(Object objet) {
+        this.element = (Cote) objet;
     }
 
     public boolean isInterne() {
@@ -121,7 +128,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
         return result;
     }
 
-    private void drawAccessoire(Graphics g, Accessoire item) {
+    private void drawAccessoire(Graphics g, Mur mur, Accessoire item) {
         try {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setStroke(new BasicStroke(2.5f));
@@ -129,7 +136,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
              * Determination des points x de l'element
              */
             int[] x = new int[4];
-            x[0] = item instanceof RetourAir ? (item.getMur().getA().x + (item.getMur().getWidth() / 2) - (item.getWidth() / 2)) : item.getA().x;
+            x[0] = item instanceof RetourAir ? (mur.getA().x + (mur.getWidth() / 2) - (item.getWidth() / 2)) : item.getA().x;
             x[1] = x[0] + item.getWidth();
             x[2] = x[1];
             x[3] = x[0];
@@ -137,7 +144,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
              * Determination des points y de l'element
              */
             int[] y = new int[4];
-            y[0] = item instanceof RetourAir ? (item.getMur().getD().y - item.getHeight() - Config.retourDistanceSol) : item.getA().y;
+            y[0] = item instanceof RetourAir ? (mur.getD().y - item.getHeight() - Config.retourDistanceSol) : item.getA().y;
             y[1] = y[0];
             y[2] = y[0] + item.getHeight();
             y[3] = y[2];
@@ -195,7 +202,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
             item.setD(new Point(x[3], y[3]));
             if (item instanceof Mur) {
                 for (Accessoire acc : (interne ? ((Mur) item).getAccessoiresInterne() : ((Mur) item).getAccessoiresExterne())) {
-                    drawAccessoire(g, acc);
+                    drawAccessoire(g, (Mur) item, acc);
                 }
             }
             /**
@@ -221,6 +228,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
             Point point = element.getSalle().getOrigin();
 
             Element selected = null;
+            Mur murSelected = null;
             for (int i = 0; i < element.getElements().size(); i++) {
                 Element item = element.getElements().get(i);
                 item.setA(point);
@@ -244,6 +252,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
                     for (Accessoire acc : ((Mur) item).getAccessoires()) {
                         if (acc.isSelected()) {
                             selected = acc;
+                            murSelected = (Mur) item;
                         }
                     }
                 }
@@ -251,7 +260,7 @@ public class DrawingElevation extends ADrawing implements IDrawing {
             if (selected != null) {
                 g.setColor(Color.RED);
                 if (selected instanceof Accessoire) {
-                    drawAccessoire(g, (Accessoire) selected);
+                    drawAccessoire(g, murSelected, (Accessoire) selected);
                 } else {
                     drawElement(g, selected);
                 }

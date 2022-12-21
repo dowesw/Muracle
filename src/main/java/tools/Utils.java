@@ -5,6 +5,8 @@
  */
 package tools;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import component.Salle;
 import component.drawing.DrawingPlan;
 import component.drawing.IDrawing;
@@ -12,8 +14,15 @@ import component.element.Cote;
 import component.element.Mur;
 import component.element.Separator;
 import component.Element;
+import domain.Controller;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,28 +80,23 @@ public class Utils {
         return false;
     }
 
-    public static Object clone(Object objet) {
-        Object result = null;
-        try {
-            Class eclass = objet.getClass();
-            Field[] fields = eclass.getDeclaredFields();
-            result = eclass.newInstance();
-            if (result == null) {
-                return result;
-            }
-            for (Field f : fields) {
-                String[] tab = f.getName().split(".");
-                if (tab.length > 0 ? !tab[tab.length - 1].equals("serialVersionUID") : true) {
-                    try {
-                        f.setAccessible(true);
-                        f.set(result, f.get(objet));
-                    } catch (IllegalArgumentException | IllegalAccessException ex) {
-                        Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+    public static Object clone(Object objet) throws Exception {
+        Class eclass = objet.getClass();
+        Field[] fields = eclass.getDeclaredFields();
+        Object result = eclass.newInstance();
+        if (result == null) {
+            new NullPointerException();
+        }
+        for (Field f : fields) {
+            String[] tab = f.getName().split(".");
+            if (tab.length > 0 ? !tab[tab.length - 1].equals("serialVersionUID") : true) {
+                try {
+                    f.setAccessible(true);
+                    f.set(result, f.get(objet));
+                } catch (IllegalArgumentException | IllegalAccessException ex) {
+                    Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        } catch (Exception ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
@@ -134,6 +138,9 @@ public class Utils {
 
     public static void controlPoint(Mur mur, final Point point, int width, int height) {
         try {
+            if (point == null) {
+                return;
+            }
             if (point.x < mur.getA().x) {
                 point.x = mur.getA().x;
             }
@@ -173,4 +180,46 @@ public class Utils {
         }
     }
 
+    public static File onGenerateXML(File file, Salle item) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(Salle.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE); // To format XML
+            m.marshal(item, file);
+        } catch (JAXBException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return file;
+    }
+
+    public static File onGenerateJSON(File file, Salle item) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            mapper.writeValue(file, item);
+        } catch (Exception ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return file;
+    }
+
+    public static String getStringFromObject(Object item) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            return mapper.writeValueAsString(item);
+        } catch (Exception ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public static Object getObjectFromString(String item, Class cClass) {
+        try {
+            return Constantes.GSON.fromJson(item, cClass);
+        } catch (Exception ex) {
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
 }

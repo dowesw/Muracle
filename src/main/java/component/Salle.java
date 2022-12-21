@@ -301,9 +301,14 @@ public class Salle {
 
     @JsonIgnore
     public Salle clone() {
-        Salle result = new Salle();
-        Utils.clone(result, this);
-        result.setCotes(new ArrayList<>(getCotes()));
-        return result;
+        try {
+            Salle result = (Salle) Utils.clone(this);
+            Utils.clone(result, this);
+            result.setCotes(new ArrayList<>(getCotes()));
+            return result;
+        } catch (Exception ex) {
+            Logger.getLogger(Salle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

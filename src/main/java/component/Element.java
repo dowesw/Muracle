@@ -13,10 +13,13 @@ import javax.swing.JTable;
 import javax.xml.bind.annotation.*;
 
 import component.drawing.IDrawing;
+import tools.Utils;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author dowes
@@ -170,5 +173,14 @@ public abstract class Element implements MouseListener {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
+    }
+
+    public Element clone() {
+        try {
+            return (Element) Utils.clone(this);
+        } catch (Exception ex) {
+            Logger.getLogger(Element.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

@@ -15,6 +15,7 @@ import javax.swing.*;
 
 import component.drawing.DrawingPanneau;
 import component.element.accessoire.RetourAir;
+import domain.ActionManager;
 import tools.Point;
 import component.element.Accessoire;
 import component.element.Cote;
@@ -46,6 +47,10 @@ public class DrawingPanel extends JPanel {
     public DrawingPanel(FrameMain frame) {
         this.frame = frame;
         initComponent();
+    }
+
+    private ActionManager getActionManager() {
+        return drawing != null ? drawing.getActionManager() : null;
     }
 
     public FrameMain getFrame() {
@@ -135,6 +140,24 @@ public class DrawingPanel extends JPanel {
         }
     }
 
+    public void undo() {
+        drawing.undo();
+        repaint();
+    }
+
+    public void redo() {
+        drawing.redo();
+        repaint();
+    }
+
+    public boolean displayUndo() {
+        return getActionManager().displayUndo();
+    }
+
+    public boolean displayRedo() {
+        return getActionManager().displayRedo();
+    }
+
     public void drawSalle(final Salle salle) {
         final JPanel tools = getFrame().getTools();
         setDrawing(new DrawingPlan(salle, new DrawingPlan.ActionDrawing() {
@@ -189,6 +212,7 @@ public class DrawingPanel extends JPanel {
     private void addSeparator(Cote cote, final Point point) {
         try {
             if (getControler().addSeparator(cote, point)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -199,6 +223,7 @@ public class DrawingPanel extends JPanel {
     private void addSeparator(Cote cote, Mur mur, final Point point) {
         try {
             if (getControler().addSeparator(mur, cote, point)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -209,6 +234,7 @@ public class DrawingPanel extends JPanel {
     private void addPorte(Mur mur, final Point point) {
         try {
             if (getControler().addPorte(mur, point)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -219,6 +245,7 @@ public class DrawingPanel extends JPanel {
     private void addFenetre(Mur mur, final Point point) {
         try {
             if (getControler().addFenetre(mur, point)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -229,6 +256,7 @@ public class DrawingPanel extends JPanel {
     private void addPrise(Mur mur, final Point point) {
         try {
             if (getControler().addPrise(mur, point)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -239,6 +267,7 @@ public class DrawingPanel extends JPanel {
     private void addRetour(Mur mur, final Point point) {
         try {
             if (getControler().addRetour(mur, point)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -249,6 +278,7 @@ public class DrawingPanel extends JPanel {
     private void removeAccessoire(Accessoire element) {
         try {
             if (getControler().removeAccessoire(element)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -259,6 +289,7 @@ public class DrawingPanel extends JPanel {
     private void removeSeparator(Separator element) {
         try {
             if (getControler().removeSeparator(element)) {
+                getActionManager().action();
                 repaint();
             }
         } catch (Exception ex) {
@@ -271,7 +302,7 @@ public class DrawingPanel extends JPanel {
             pressed = false;
             Point point = new Point(evt.getPoint().x, evt.getPoint().y);
             Point pointReleased = getControler().getPoint(point, 1);
-            if (pointPressed != null) {
+            if (pointPressed != null && pointReleased != null) {
                 if (elementSelected != null ? (elementSelected instanceof Accessoire || elementSelected instanceof Separator) : false) {
                     if (elementSelected instanceof RetourAir) {
                         return;
@@ -287,6 +318,7 @@ public class DrawingPanel extends JPanel {
                             Utils.updateMursWhenUpdateSeparator(item, pointReleased, getControler().getSalle());
                         }
                         elementSelected.setA(pointReleased);
+                        getActionManager().action();
                         repaint();
                     }
                 }

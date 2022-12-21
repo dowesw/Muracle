@@ -394,9 +394,9 @@ public class Controller {
             }
             String extention = Files.getFileExtension(file.getAbsolutePath());
             if (extention.equals("xml")) {
-                file = onGenerateXML(file, item);
+                file = Utils.onGenerateXML(file, item);
             } else {
-                file = onGenerateJSON(file, item);
+                file = Utils.onGenerateJSON(file, item);
             }
             if (fileSave == null) {
                 fileSave = file.getAbsolutePath();
@@ -407,29 +407,6 @@ public class Controller {
         }
 
         return true;
-    }
-
-    private File onGenerateXML(File file, Salle item) {
-        try {
-            JAXBContext context = JAXBContext.newInstance(Salle.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE); // To format XML
-            m.marshal(item, file);
-        } catch (JAXBException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return file;
-    }
-
-    private File onGenerateJSON(File file, Salle item) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            mapper.writeValue(file, item);
-        } catch (Exception ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return file;
     }
 
 }

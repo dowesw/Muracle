@@ -8,7 +8,7 @@ package component.drawing;
 import component.element.Accessoire;
 import component.element.Separator;
 import component.element.accessoire.RetourAir;
-import component.element.accessoire.TrouAir;
+import domain.ActionManager;
 import tools.Config;
 import tools.Point;
 
@@ -42,6 +42,7 @@ public class DrawingPlan extends ADrawing implements IDrawing {
     ActionDrawing listener;
 
     public DrawingPlan(Salle element, ActionDrawing listener) {
+        super(element);
         this.element = element;
         this.listener = listener;
     }
@@ -54,6 +55,11 @@ public class DrawingPlan extends ADrawing implements IDrawing {
     @Override
     public Object getObjet() {
         return element;
+    }
+
+    @Override
+    public void setObjet(Object objet) {
+        this.element = (Salle) objet;
     }
 
     public Dimension getDimension() {
@@ -107,7 +113,7 @@ public class DrawingPlan extends ADrawing implements IDrawing {
         try {
             if (item instanceof RetourAir) {
                 int[] x = new int[4];
-                x[0] = (item.getMur().getA().x + (item.getMur().getWidth() / 2) - (item.getWidth() / 2));
+                x[0] = (mur.getA().x + (mur.getWidth() / 2) - (item.getWidth() / 2));
                 x[1] = x[0] + item.getWidth();
                 x[2] = x[1];
                 x[3] = x[0];
@@ -115,7 +121,7 @@ public class DrawingPlan extends ADrawing implements IDrawing {
                  * Determination des points y de l'element
                  */
                 int[] y = new int[4];
-                y[0] = (item.getMur().getA().y + (element.getWeight() / 2) - (Config.retourWeight / 2));
+                y[0] = (mur.getA().y + (element.getWeight() / 2) - (Config.retourWeight / 2));
                 y[1] = y[0];
                 y[2] = y[0] + Config.retourWeight;
                 y[3] = y[2];

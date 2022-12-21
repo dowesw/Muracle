@@ -7,6 +7,7 @@ package component.drawing;
 
 import java.awt.*;
 
+import domain.ActionManager;
 import tools.Point;
 
 import javax.swing.*;
@@ -48,6 +49,12 @@ public interface IDrawing {
     void manager(JPanel panel);
 
     Dimension getDimension();
+
+    ActionManager getActionManager();
+
+    void undo();
+
+    void redo();
 
     /**
      * Fonction pour définir la méthode d'actualisation après changement

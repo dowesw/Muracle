@@ -7,7 +7,6 @@ package view;
 
 import javax.swing.*;
 
-import component.Salle;
 import domain.Controller;
 import gui.DrawingPanel;
 import tools.Constantes;
@@ -163,10 +162,20 @@ public class FrameMain extends javax.swing.JFrame {
 
         item_undo.setText("Undo");
         item_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+        item_undo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_undo_asActionPerformed(evt);
+            }
+        });
         jMenu2.add(item_undo);
 
         item_redo.setText("Redo");
         item_redo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+        item_redo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_redo_asActionPerformed(evt);
+            }
+        });
         jMenu2.add(item_redo);
         jMenu2.add(jSeparator3);
 
@@ -266,6 +275,16 @@ public class FrameMain extends javax.swing.JFrame {
             controller.onGenerateBackup(this, controller.getSalle(), true);
         }
     }//GEN-LAST:event_item_save_asActionPerformed
+
+    private void item_undo_asActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:item_undo_asActionPerformed
+        // TODO add your handling code here:
+        ((DrawingPanel) panel_display).undo();
+    }//GEN-LAST:item_undo_asActionPerformed
+
+    private void item_redo_asActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:item_redo_asActionPerformed
+        // TODO add your handling code here:
+        ((DrawingPanel) panel_display).redo();
+    }//GEN-LAST:item_redo_asActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

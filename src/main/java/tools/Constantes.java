@@ -9,6 +9,7 @@ package tools;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import component.Element;
+import component.element.Accessoire;
 import tools.adapter.DeserializeElement;
 import view.FrameMain;
 
@@ -19,7 +20,8 @@ public class Constantes {
 
     public static String PATH;
     public static ClassLoader LOADER;
-    public final static Gson GSON = new GsonBuilder().registerTypeAdapter(Element.class, new DeserializeElement()).create();
+    public final static Gson GSON = new GsonBuilder().registerTypeAdapter(Element.class, new DeserializeElement())
+            .registerTypeAdapter(Accessoire.class, new DeserializeElement()).create();
     public static FrameMain MAIN;
 
 }
